@@ -15,7 +15,7 @@ export default function Landing() {
   const videoRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mode, setMode] = useState("checking");
-  const VIDEO = `${import.meta.env.BASE_URL}head-turn.webm`;
+  const VIDEO = `${import.meta.env.BASE_URL}head-turn.webm?v=60`;
 
   const goTo = (id) => {
     if (id === "intro") window.scrollTo({ top: wrapRef.current?.offsetTop || 0, behavior: "smooth" });
