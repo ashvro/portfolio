@@ -7,6 +7,7 @@ const clamp01 = (x) => Math.min(1, Math.max(0, x));
 const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
 const EASE_TAU = 80;       // higher = smoother/slower glide
 const TURN_LEAD_VH = 1;    // one scroll of pause after the last frame before About enters
+const SECTION_STEP_VH = 2; // scroll distance between section handoffs
 
 
 export default function Landing() {
@@ -75,9 +76,10 @@ export default function Landing() {
     const size = () => {
       const W = pin.clientWidth, H = pin.clientHeight;
       const heights = sections.map((el) => el?.offsetHeight || H);
+      const step = H * SECTION_STEP_VH;
       stages.forEach((stage, i) => {
         stage.style.marginTop = `${i === 0 ? -H : -heights[i - 1]}px`;
-        stage.style.height = `${H + heights[i]}px`;
+        stage.style.height = `${step + heights[i]}px`;
       });
       const tall = H > W * 0.95;
       root.style.setProperty("--w", `${W}px`);
@@ -212,7 +214,7 @@ export default function Landing() {
       if (Math.abs(hb - heroBlur) >= 0.02) { heroBlur = hb; root.style.setProperty("--hero-blur", `${hb.toFixed(2)}px`); }
       sections.forEach((el, i) => {
         if (i >= sections.length - 1) return;
-        const v = clamp01((y - m.tops[i]) / Math.max(1, m.tops[i + 1] - m.tops[i])) * 14;
+        const v = clamp01((y - (m.tops[i + 1] - m.vh)) / Math.max(1, m.vh)) * 14;
         if (Math.abs(v - blur[i]) < 0.02) return;
         blur[i] = v;
         el?.style.setProperty("--section-blur", `${v.toFixed(2)}px`);
