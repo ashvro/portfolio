@@ -56,8 +56,8 @@
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-size: cover; mask-size: cover;
   -webkit-mask-position: 50% 0%; mask-position: 50% 0%;
-  transform: translateY(4%); will-change: opacity; transition: opacity 0.18s linear; }
-.pf-portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; opacity: 0; will-change: opacity; filter: contrast(1.08) saturate(1.1); transition: opacity 0.18s linear;
+  transform: translateY(4%); }
+.pf-portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; opacity: 0;
   -webkit-mask-image:
     linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%),
     radial-gradient(ellipse 80% 90% at 30% 50%, #000 40%, transparent 100%);

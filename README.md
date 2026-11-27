@@ -20,7 +20,7 @@ index.html                     page shell and fonts
 package.json                   scripts and dependencies
 package-lock.json              locked dependency versions
 vite.config.js                 Vite config (base comes from VITE_BASE)
-public/frames/frame-1..7.png   the 7 portrait frames
+public/frames/frame-1..7.webp   the 7 portrait frames
 src/main.jsx                   React entry point
 src/App.jsx                    renders the page
 src/index.css                  global reset/fonts
@@ -42,6 +42,6 @@ src/data/frames.js             frame path generator
 ## Publish to GitHub Pages
 
 1. Create a public repo, e.g. `ashvro/portfolio`.
-2. Set `base: "/portfolio/"` in `vite.config.js` (use `/` only for a root `ashvro.github.io` site), so frame and asset paths resolve correctly.
-3. Run `npm run build` and deploy the `dist` folder — either with a GitHub Actions workflow or a `gh-pages` branch.
+2. `vite.config.js` uses `base: "./"`, so assets and frames resolve on both a project page and a root `ashvro.github.io` site — no change needed.
+3. Run `npm run build` and deploy the `dist` folder to a `gh-pages` branch, then set **Settings → Pages → Source** to `gh-pages` / `/ (root)`.
 4. The site will be at `https://ashvro.github.io/portfolio/`.
