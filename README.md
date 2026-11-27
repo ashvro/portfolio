@@ -20,7 +20,8 @@ index.html                     page shell and fonts
 package.json                   scripts and dependencies
 package-lock.json              locked dependency versions
 vite.config.js                 Vite config (base comes from VITE_BASE)
-public/frames/frame-1..7.webp   the 7 portrait frames
+public/head-turn.webm           scrubbable portrait video (37 alpha frames)
+public/frames/frame-1..7.webp   fallback frames if VP9 alpha is unsupported
 src/main.jsx                   React entry point
 src/App.jsx                    renders the page
 src/index.css                  global reset/fonts

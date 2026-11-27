@@ -12,7 +12,10 @@ export default function Landing() {
   const wrapRef = useRef(null);
   const pinRef = useRef(null);
   const portraitRef = useRef(null);
+  const videoRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mode, setMode] = useState("checking");
+  const VIDEO = `${import.meta.env.BASE_URL}head-turn.webm`;
 
   const goTo = (id) => {
     if (id === "intro") window.scrollTo({ top: wrapRef.current?.offsetTop || 0, behavior: "smooth" });
@@ -30,6 +33,40 @@ export default function Landing() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !v.canPlayType('video/webm; codecs="vp9"')) { setMode("images"); return; }
+    let cancelled = false;
+    const choose = async () => {
+      try {
+        await new Promise((resolve, reject) => {
+          if (v.readyState >= 2) return resolve();
+          v.addEventListener("loadeddata", resolve, { once: true });
+          v.addEventListener("error", reject, { once: true });
+        });
+        v.pause();
+        v.currentTime = 0;
+        await new Promise((resolve) => {
+          v.addEventListener("seeked", resolve, { once: true });
+          setTimeout(resolve, 1200);
+        });
+        const c = document.createElement("canvas");
+        c.width = 80; c.height = 60;
+        const ctx = c.getContext("2d", { willReadFrequently: true });
+        ctx.clearRect(0, 0, c.width, c.height);
+        ctx.drawImage(v, 0, 0, c.width, c.height);
+        const d = ctx.getImageData(0, 0, c.width, c.height).data;
+        let transparent = 0;
+        for (let i = 3; i < d.length; i += 4) if (d[i] < 250) transparent++;
+        if (!cancelled) setMode(transparent > d.length / 8 ? "video" : "images");
+      } catch {
+        if (!cancelled) setMode("images");
+      }
+    };
+    choose();
+    return () => { cancelled = true; };
+  }, []);
 
   useLayoutEffect(() => {
     const root = rootRef.current, pin = pinRef.current;
@@ -58,18 +95,20 @@ export default function Landing() {
 
   useEffect(() => {
     const root = rootRef.current, wrap = wrapRef.current, pin = pinRef.current;
-    const imgs = Array.from(portraitRef.current.querySelectorAll("img"));
-    const backs = Array.from(portraitRef.current.querySelectorAll(".pf-frame-back"));
+    const useVideo = mode === "video";
+    const imgs = mode === "images" ? Array.from(portraitRef.current.querySelectorAll("img")) : [];
+    const backs = mode === "images" ? Array.from(portraitRef.current.querySelectorAll(".pf-frame-back")) : [];
+    const video = useVideo ? videoRef.current : null;
     const inner = portraitRef.current.querySelector(".pf-portrait-in");
     const stages = Array.from(root.querySelectorAll(".pf-stage"));
     const sections = stages.map((stage) => stage.querySelector(".pf-section"));
-    const last = imgs.length - 1;
+    const last = FRAMES.length - 1;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let m = { wrapTop: 0, range: 1, vh: 1, tops: [] };
     let colors = [];
     let tab = "", linkCount = 0;
-    let opa = imgs.map(() => -1);
+    let opa = FRAMES.map(() => -1), lastTime = -1;
     let blur = sections.map(() => -1), heroBlur = -1;
 
     const recolor = () => {
@@ -78,6 +117,13 @@ export default function Landing() {
     };
 
     const paint = (pos) => {
+      if (useVideo) {
+        const t = clamp01(pos / last) * Math.max(0, (video.duration || 0.86) - 0.004);
+        if (Math.abs(t - lastTime) < 0.002) return;
+        lastTime = t;
+        try { video.currentTime = t; } catch { /* seek not ready yet */ }
+        return;
+      }
       for (let i = 0; i < imgs.length; i++) {
         const v = Math.max(0, 1 - Math.abs(pos - i));
         if (Math.abs(v - opa[i]) < 0.002) continue;
@@ -140,8 +186,13 @@ export default function Landing() {
       requestAnimationFrame(() => { ticking = false; measure(); });
     };
 
-    imgs.forEach((im) => { im.loading = "eager"; im.decoding = "async"; if ("fetchPriority" in im) im.fetchPriority = "high"; });
-    Promise.all(imgs.map((im) => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()))).catch(() => {});
+    if (useVideo) {
+      video.pause();
+      video.currentTime = 0;
+    } else {
+      imgs.forEach((im) => { im.loading = "eager"; im.decoding = "async"; if ("fetchPriority" in im) im.fetchPriority = "high"; });
+      Promise.all(imgs.map((im) => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()))).catch(() => {});
+    }
 
     paint(0);
     remeasure();
@@ -151,7 +202,7 @@ export default function Landing() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", remeasure);
     };
-  }, []);
+  }, [mode]);
 
   return (
     <div className="pf" ref={rootRef}>
@@ -188,11 +239,17 @@ export default function Landing() {
         <section className="pf-hero" ref={pinRef} aria-label="Introduction">
           <div className="pf-band" aria-hidden="true" />
 
-          <div className="pf-portrait" ref={portraitRef} role="img" aria-label="Portrait that turns from profile to facing you as you scroll">
+          <div className={`pf-portrait${mode === "images" ? " is-images" : ""}`} ref={portraitRef} role="img" aria-label="Portrait that turns from profile to facing you as you scroll">
             <div className="pf-portrait-in">
-              {FRAMES.map((src, i) => (<span key={`back-${i}`} className="pf-frame-back" aria-hidden="true"
-                style={{ WebkitMaskImage: `url(${src})`, maskImage: `url(${src})`, opacity: i === 0 ? 1 : 0 }} />))}
-              {FRAMES.map((src, i) => (<img key={i} src={src} alt="" draggable="false" decoding="async" loading="eager" style={{ opacity: i === 0 ? 1 : 0 }} />))}
+              {mode === "images" && (
+                <>
+                  {FRAMES.map((src, i) => (<span key={`back-${i}`} className="pf-frame-back" aria-hidden="true"
+                    style={{ WebkitMaskImage: `url(${src})`, maskImage: `url(${src})`, opacity: i === 0 ? 1 : 0 }} />))}
+                  {FRAMES.map((src, i) => (<img key={i} src={src} alt="" draggable="false" decoding="async" loading="eager" style={{ opacity: i === 0 ? 1 : 0 }} />))}
+                </>
+              )}
+              <video ref={videoRef} className="pf-video" src={VIDEO} poster={FRAMES[0]}
+                muted playsInline preload="auto" disablePictureInPicture aria-hidden="true" />
             </div>
           </div>
 
