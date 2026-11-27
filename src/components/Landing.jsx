@@ -274,8 +274,8 @@ export default function Landing() {
                   {FRAMES.map((src, i) => (<img key={i} src={src} alt="" draggable="false" decoding="async" loading="eager" style={{ opacity: i === 0 ? 1 : 0 }} />))}
                 </>
               )}
-              <canvas ref={canvasRef} className="pf-canvas" aria-hidden="true"
-                style={{ backgroundImage: `url(${FRAMES[0]})` }} />
+              {mode === "checking" && <img className="pf-poster" src={FRAMES[0]} alt="" aria-hidden="true" draggable="false" />}
+              <canvas ref={canvasRef} className="pf-canvas" aria-hidden="true" />
             </div>
           </div>
 
