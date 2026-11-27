@@ -20,7 +20,7 @@ index.html                     page shell and fonts
 package.json                   scripts and dependencies
 package-lock.json              locked dependency versions
 vite.config.js                 Vite config (base comes from VITE_BASE)
-public/sequence/frame-001..060.webp   60 motion-interpolated portrait frames
+public/sequence/frame-001..120.webp   120 RIFE-interpolated portrait frames
 public/frames/frame-1..7.webp          fallback frames if canvas is unsupported
 src/main.jsx                   React entry point
 src/App.jsx                    renders the page
