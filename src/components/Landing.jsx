@@ -5,7 +5,7 @@ import "./landing.css";
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
-const EASE_TAU = 140;      // higher = smoother/slower glide
+const EASE_TAU = 80;       // higher = smoother/slower glide
 const FRAME_STEP_VH = 0.5; // 6 steps × 0.5vh ≈ 3vh roll section
 
 
