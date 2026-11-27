@@ -6,7 +6,7 @@ import "./landing.css";
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
 const EASE_TAU = 80;       // higher = smoother/slower glide
-const FRAME_STEP_VH = 0.5; // 6 steps × 0.5vh ≈ 3vh roll section
+const TURN_LEAD_VH = 1;    // one scroll of pause after the last frame before About enters
 
 
 export default function Landing() {
@@ -65,10 +65,7 @@ export default function Landing() {
         if (!cancelled) setMode("images");
       }
     })();
-    return () => {
-      cancelled = true;
-      bitmaps.forEach((bmp) => bmp?.close?.());
-    };
+    return () => { cancelled = true; };
   }, []);
 
   useLayoutEffect(() => {
@@ -220,7 +217,8 @@ export default function Landing() {
         blur[i] = v;
         el?.style.setProperty("--section-blur", `${v.toFixed(2)}px`);
       });
-      targetPos = Math.min(last, y / Math.max(1, m.vh * FRAME_STEP_VH));
+      const turnEnd = Math.max(1, m.tops[0] - m.vh * (TURN_LEAD_VH + 1));
+      targetPos = Math.min(last, (y / turnEnd) * last);
       startTick();
 
       let now = "intro";
