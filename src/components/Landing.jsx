@@ -5,6 +5,8 @@ import "./landing.css";
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
+const EASE_TAU = 140;      // higher = smoother/slower glide
+const FRAME_STEP_VH = 0.5; // 6 steps × 0.5vh ≈ 3vh roll section
 
 
 export default function Landing() {
@@ -94,7 +96,7 @@ export default function Landing() {
     let m = { wrapTop: 0, range: 1, vh: 1, tops: [] };
     let colors = [];
     let tab = "", linkCount = 0;
-    let opa = FRAMES.map(() => -1), lastIndex = -1;
+    let opa = FRAMES.map(() => -1), lastKey = -1;
     let blur = sections.map(() => -1), heroBlur = -1;
     let targetPos = 0, currentPos = 0, rafId = 0, lastT = 0;
 
@@ -108,25 +110,41 @@ export default function Landing() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
       const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
-      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; lastIndex = -1; }
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; lastKey = -1; }
     };
 
     const paint = (pos) => {
       if (useCanvas && bitmaps.length) {
-        const idx = Math.round(clamp01(pos / last) * (bitmaps.length - 1));
-        if (idx === lastIndex) return;
-        lastIndex = idx;
+        const raw = clamp01(pos / last) * (bitmaps.length - 1);
+        const key = Math.round(raw * 100);
+        if (key === lastKey) return;
+        lastKey = key;
         sizeCanvas();
         const ctx = canvas.getContext("2d");
-        const bmp = bitmaps[idx];
-        const cw = canvas.width, ch = canvas.height, bw = bmp.width, bh = bmp.height;
-        const scale = Math.max(cw / bw, ch / bh);
-        const sw = cw / scale, sh = ch / scale;
+        const cw = canvas.width, ch = canvas.height;
         const tall = root.dataset.tall === "1";
-        const sx = (bw - sw) * (tall ? 0.46 : 0.5);
-        const sy = (bh - sh) * (tall ? 0.10 : 0);
+        const place = (bmp) => {
+          const bw = bmp.width, bh = bmp.height;
+          const scale = Math.max(cw / bw, ch / bh);
+          const sw = cw / scale, sh = ch / scale;
+          return [(bw - sw) * (tall ? 0.46 : 0.5), (bh - sh) * (tall ? 0.10 : 0), sw, sh];
+        };
+        const i = Math.floor(raw);
+        const j = Math.min(bitmaps.length - 1, i + 1);
+        const t = raw - i;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = 1 - t;
         ctx.clearRect(0, 0, cw, ch);
-        ctx.drawImage(bmp, sx, sy, sw, sh, 0, 0, cw, ch);
+        ctx.drawImage(bitmaps[i], ...place(bitmaps[i]), 0, 0, cw, ch);
+        if (t > 0.001 && j !== i) {
+          ctx.globalCompositeOperation = "lighter";
+          ctx.globalAlpha = t;
+          ctx.drawImage(bitmaps[j], ...place(bitmaps[j]), 0, 0, cw, ch);
+        }
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
         return;
       }
       for (let i = 0; i < imgs.length; i++) {
@@ -149,7 +167,7 @@ export default function Landing() {
         rafId = 0;
         return;
       }
-      currentPos += diff * (1 - Math.exp(-dt / 70));
+      currentPos += diff * (1 - Math.exp(-dt / EASE_TAU));
       paint(currentPos);
       rafId = requestAnimationFrame(tick);
     };
@@ -173,7 +191,7 @@ export default function Landing() {
         blur[i] = v;
         el?.style.setProperty("--section-blur", `${v.toFixed(2)}px`);
       });
-      targetPos = Math.min(last, y / 600);
+      targetPos = Math.min(last, y / Math.max(1, m.vh * FRAME_STEP_VH));
       startTick();
 
       let now = "intro";
