@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ME, ABOUT, PROJECTS, SKILLS, FEATURED, EDUCATION, CONTACT, NAV } from "../data/content";
-import FRAMES from "../data/frames";
+import FRAMES, { SEQUENCE } from "../data/frames";
 import "./landing.css";
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
@@ -12,10 +12,10 @@ export default function Landing() {
   const wrapRef = useRef(null);
   const pinRef = useRef(null);
   const portraitRef = useRef(null);
-  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const bitmapsRef = useRef([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mode, setMode] = useState("checking");
-  const VIDEO = `${import.meta.env.BASE_URL}head-turn.webm?v=60`;
 
   const goTo = (id) => {
     if (id === "intro") window.scrollTo({ top: wrapRef.current?.offsetTop || 0, behavior: "smooth" });
@@ -35,36 +35,21 @@ export default function Landing() {
   }, [menuOpen]);
 
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v || !v.canPlayType('video/webm; codecs="vp9"')) { setMode("images"); return; }
+    if (typeof createImageBitmap !== "function") { setMode("images"); return; }
     let cancelled = false;
-    const choose = async () => {
+    (async () => {
       try {
-        await new Promise((resolve, reject) => {
-          if (v.readyState >= 2) return resolve();
-          v.addEventListener("loadeddata", resolve, { once: true });
-          v.addEventListener("error", reject, { once: true });
-        });
-        v.pause();
-        v.currentTime = 0;
-        await new Promise((resolve) => {
-          v.addEventListener("seeked", resolve, { once: true });
-          setTimeout(resolve, 1200);
-        });
-        const c = document.createElement("canvas");
-        c.width = 80; c.height = 60;
-        const ctx = c.getContext("2d", { willReadFrequently: true });
-        ctx.clearRect(0, 0, c.width, c.height);
-        ctx.drawImage(v, 0, 0, c.width, c.height);
-        const d = ctx.getImageData(0, 0, c.width, c.height).data;
-        let transparent = 0;
-        for (let i = 3; i < d.length; i += 4) if (d[i] < 250) transparent++;
-        if (!cancelled) setMode(transparent > d.length / 8 ? "video" : "images");
+        const bitmaps = await Promise.all(SEQUENCE.map(async (src) => {
+          const blob = await (await fetch(src)).blob();
+          return createImageBitmap(blob);
+        }));
+        if (cancelled) { bitmaps.forEach((b) => b.close?.()); return; }
+        bitmapsRef.current = bitmaps;
+        setMode("canvas");
       } catch {
         if (!cancelled) setMode("images");
       }
-    };
-    choose();
+    })();
     return () => { cancelled = true; };
   }, []);
 
@@ -95,10 +80,11 @@ export default function Landing() {
 
   useEffect(() => {
     const root = rootRef.current, wrap = wrapRef.current, pin = pinRef.current;
-    const useVideo = mode === "video";
+    const useCanvas = mode === "canvas";
     const imgs = mode === "images" ? Array.from(portraitRef.current.querySelectorAll("img")) : [];
     const backs = mode === "images" ? Array.from(portraitRef.current.querySelectorAll(".pf-frame-back")) : [];
-    const video = useVideo ? videoRef.current : null;
+    const canvas = useCanvas ? canvasRef.current : null;
+    const bitmaps = useCanvas ? bitmapsRef.current : [];
     const inner = portraitRef.current.querySelector(".pf-portrait-in");
     const stages = Array.from(root.querySelectorAll(".pf-stage"));
     const sections = stages.map((stage) => stage.querySelector(".pf-section"));
@@ -108,20 +94,39 @@ export default function Landing() {
     let m = { wrapTop: 0, range: 1, vh: 1, tops: [] };
     let colors = [];
     let tab = "", linkCount = 0;
-    let opa = FRAMES.map(() => -1), lastTime = -1;
+    let opa = FRAMES.map(() => -1), lastIndex = -1;
     let blur = sections.map(() => -1), heroBlur = -1;
+    let targetPos = 0, currentPos = 0, rafId = 0, lastT = 0;
 
     const recolor = () => {
       const rgb = (el) => (getComputedStyle(el).backgroundColor.match(/\d+/g) || ["48", "8", "84"]).slice(0, 3).join(", ");
       colors = [rgb(pin), ...sections.map((el) => rgb(el))];
     };
 
+    const sizeCanvas = () => {
+      if (!canvas) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
+      const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; lastIndex = -1; }
+    };
+
     const paint = (pos) => {
-      if (useVideo) {
-        const t = clamp01(pos / last) * Math.max(0, (video.duration || 0.86) - 0.004);
-        if (Math.abs(t - lastTime) < 0.002) return;
-        lastTime = t;
-        try { video.currentTime = t; } catch { /* seek not ready yet */ }
+      if (useCanvas && bitmaps.length) {
+        const idx = Math.round(clamp01(pos / last) * (bitmaps.length - 1));
+        if (idx === lastIndex) return;
+        lastIndex = idx;
+        sizeCanvas();
+        const ctx = canvas.getContext("2d");
+        const bmp = bitmaps[idx];
+        const cw = canvas.width, ch = canvas.height, bw = bmp.width, bh = bmp.height;
+        const scale = Math.max(cw / bw, ch / bh);
+        const sw = cw / scale, sh = ch / scale;
+        const tall = root.dataset.tall === "1";
+        const sx = (bw - sw) * (tall ? 0.46 : 0.5);
+        const sy = (bh - sh) * (tall ? 0.10 : 0);
+        ctx.clearRect(0, 0, cw, ch);
+        ctx.drawImage(bmp, sx, sy, sw, sh, 0, 0, cw, ch);
         return;
       }
       for (let i = 0; i < imgs.length; i++) {
@@ -132,6 +137,26 @@ export default function Landing() {
         imgs[i].style.opacity = s;
         backs[i].style.opacity = s;
       }
+    };
+
+    const tick = (now) => {
+      const dt = Math.min(64, now - lastT || 16);
+      lastT = now;
+      const diff = targetPos - currentPos;
+      if (Math.abs(diff) < 0.0006) {
+        currentPos = targetPos;
+        paint(currentPos);
+        rafId = 0;
+        return;
+      }
+      currentPos += diff * (1 - Math.exp(-dt / 70));
+      paint(currentPos);
+      rafId = requestAnimationFrame(tick);
+    };
+    const startTick = () => {
+      if (rafId) return;
+      lastT = performance.now();
+      rafId = requestAnimationFrame(tick);
     };
 
     const measure = () => {
@@ -148,7 +173,8 @@ export default function Landing() {
         blur[i] = v;
         el?.style.setProperty("--section-blur", `${v.toFixed(2)}px`);
       });
-      paint(Math.min(last, y / 600));
+      targetPos = Math.min(last, y / 600);
+      startTick();
 
       let now = "intro";
       for (let i = 0; i < sections.length; i++) {
@@ -176,6 +202,7 @@ export default function Landing() {
         tops: stages.map(docTop),
       };
       recolor();
+      sizeCanvas();
       measure();
     };
 
@@ -186,14 +213,12 @@ export default function Landing() {
       requestAnimationFrame(() => { ticking = false; measure(); });
     };
 
-    if (useVideo) {
-      video.pause();
-      video.currentTime = 0;
-    } else {
+    if (!useCanvas) {
       imgs.forEach((im) => { im.loading = "eager"; im.decoding = "async"; if ("fetchPriority" in im) im.fetchPriority = "high"; });
       Promise.all(imgs.map((im) => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()))).catch(() => {});
     }
 
+    sizeCanvas();
     paint(0);
     remeasure();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -201,6 +226,7 @@ export default function Landing() {
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", remeasure);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [mode]);
 
@@ -248,8 +274,8 @@ export default function Landing() {
                   {FRAMES.map((src, i) => (<img key={i} src={src} alt="" draggable="false" decoding="async" loading="eager" style={{ opacity: i === 0 ? 1 : 0 }} />))}
                 </>
               )}
-              <video ref={videoRef} className="pf-video" src={VIDEO} poster={FRAMES[0]}
-                muted playsInline preload="auto" disablePictureInPicture aria-hidden="true" />
+              <canvas ref={canvasRef} className="pf-canvas" aria-hidden="true"
+                style={{ backgroundImage: `url(${FRAMES[0]})` }} />
             </div>
           </div>
 
