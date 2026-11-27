@@ -39,20 +39,36 @@ export default function Landing() {
   useEffect(() => {
     if (typeof createImageBitmap !== "function") { setMode("images"); return; }
     let cancelled = false;
+    const bitmaps = new Array(SEQUENCE.length);
+    const load = async (i) => {
+      const blob = await (await fetch(SEQUENCE[i])).blob();
+      const bmp = await createImageBitmap(blob);
+      if (cancelled) { bmp.close?.(); return false; }
+      bitmaps[i] = bmp;
+      window.dispatchEvent(new Event("pf-frames"));
+      return true;
+    };
     (async () => {
       try {
-        const bitmaps = await Promise.all(SEQUENCE.map(async (src) => {
-          const blob = await (await fetch(src)).blob();
-          return createImageBitmap(blob);
-        }));
-        if (cancelled) { bitmaps.forEach((b) => b.close?.()); return; }
+        await load(0);
+        if (cancelled) return;
         bitmapsRef.current = bitmaps;
         setMode("canvas");
+        let next = 1;
+        await Promise.all(Array.from({ length: 8 }, async () => {
+          while (!cancelled && next < SEQUENCE.length) {
+            const i = next++;
+            try { await load(i); } catch { /* keep the nearest loaded frame */ }
+          }
+        }));
       } catch {
         if (!cancelled) setMode("images");
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      bitmaps.forEach((bmp) => bmp?.close?.());
+    };
   }, []);
 
   useLayoutEffect(() => {
@@ -129,19 +145,32 @@ export default function Landing() {
           const sw = cw / scale, sh = ch / scale;
           return [(bw - sw) * (tall ? 0.46 : 0.5), (bh - sh) * (tall ? 0.10 : 0), sw, sh];
         };
-        const i = Math.floor(raw);
-        const j = Math.min(bitmaps.length - 1, i + 1);
-        const t = raw - i;
+        const nearest = (idx) => {
+          for (let d = 0; d < bitmaps.length; d++) {
+            const a = idx - d;
+            if (a >= 0 && bitmaps[a]) return a;
+            const b = idx + d;
+            if (b < bitmaps.length && bitmaps[b]) return b;
+          }
+          return -1;
+        };
+        let a = nearest(Math.floor(raw));
+        let b = nearest(Math.min(bitmaps.length - 1, Math.ceil(raw)));
+        if (a < 0 && b < 0) return;
+        if (a < 0) a = b;
+        if (b < 0) b = a;
+        if (a > b) [a, b] = [b, a];
+        const t = a === b ? 0 : clamp01((raw - a) / Math.max(1, b - a));
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.globalCompositeOperation = "source-over";
         ctx.globalAlpha = 1 - t;
         ctx.clearRect(0, 0, cw, ch);
-        ctx.drawImage(bitmaps[i], ...place(bitmaps[i]), 0, 0, cw, ch);
-        if (t > 0.001 && j !== i) {
+        ctx.drawImage(bitmaps[a], ...place(bitmaps[a]), 0, 0, cw, ch);
+        if (t > 0.001 && b !== a) {
           ctx.globalCompositeOperation = "lighter";
           ctx.globalAlpha = t;
-          ctx.drawImage(bitmaps[j], ...place(bitmaps[j]), 0, 0, cw, ch);
+          ctx.drawImage(bitmaps[b], ...place(bitmaps[b]), 0, 0, cw, ch);
         }
         ctx.globalAlpha = 1;
         ctx.globalCompositeOperation = "source-over";
@@ -236,12 +265,15 @@ export default function Landing() {
       Promise.all(imgs.map((im) => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()))).catch(() => {});
     }
 
+    const onFrames = () => { lastKey = -1; paint(currentPos); };
     sizeCanvas();
     paint(0);
     remeasure();
+    window.addEventListener("pf-frames", onFrames);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", remeasure);
     return () => {
+      window.removeEventListener("pf-frames", onFrames);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", remeasure);
       if (rafId) cancelAnimationFrame(rafId);
