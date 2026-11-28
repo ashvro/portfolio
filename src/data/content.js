@@ -16,7 +16,11 @@ export const ABOUT = {
     { text: " I live by one idea, ", noWrap: true },
     { text: '"To make things easier for everyone."', highlight: true, breakBefore: true },
   ],
-  more: "I build web apps from the first sketch to the shipped product, and I care about the small details that make something feel effortless to use.",
+  more: [
+    "I love building AI agents and AI-driven workflows that take repetitive, complicated tasks off people's plates. I'm strong in AI/ML, and I enjoy taking an idea from a rough prototype to something people can actually use. I also enjoy designing clean, cool website UIs, because good tech should look and feel simple too. You can see what I've built in the Projects section.",
+    "Outside of code, I play table tennis, binge-watch movies and series, and doomscroll Instagram a little more than I'd like to admit.",
+    "I'm currently looking for AI Engineer roles where I can build practical, real-world AI products. Feel free to explore my work or get in touch.",
+  ],
   facts: [["Based in", "Your City"], ["Focus", "Web apps"], ["Status", "Open to work"]],
 };
 

@@ -363,7 +363,7 @@ export default function Landing() {
                 : <span key={i} className={part.noWrap ? "pf-nowrap" : undefined}>{part.text}</span>)}</h2>
             </div>
             <div className="pf-about-body">
-              <p>{ABOUT.more}</p>
+              {ABOUT.more.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
               <ul className="pf-facts">
                 {ABOUT.facts.map(([label, value]) => (<li key={label}><strong>{label}</strong><span>{value}</span></li>))}
               </ul>
