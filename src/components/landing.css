@@ -141,6 +141,8 @@
 .pf[data-tall="0"] .pf-stage .pf-about { padding-left: clamp(16px, calc(var(--w) * .05), 84px); }
 .pf[data-tall="0"] .pf-about .pf-section-inner { margin-left: 0; }
 .pf-about h2 { font-size: clamp(38px, 5.2vw, 72px); line-height: 1.03; letter-spacing: -.035em; margin: 0; }
+.pf-about .pf-hl { color: #1c0b2e; background: #ffe27a; border-radius: 5px; padding: 0 .1em;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .pf-about-body p { font-size: clamp(17px, 1.7vw, 22px); line-height: 1.7; margin: 0; }
 .pf-about .pf-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 3vw, 32px); margin-top: 40px; }
 .pf-about .pf-facts li { padding: 0; border: 0; gap: 6px; }

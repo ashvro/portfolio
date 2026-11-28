@@ -356,7 +356,9 @@ export default function Landing() {
           <div className="pf-section-inner pf-about-inner">
             <div className="pf-about-lead">
               <p className="pf-eyebrow">About</p>
-              <h2>{ABOUT.lead}</h2>
+              <h2>{ABOUT.lead.map((part, i) => part.highlight
+              ? <mark key={i} className="pf-hl">{part.text}</mark>
+              : <span key={i}>{part.text}</span>)}</h2>
             </div>
             <div className="pf-about-body">
               <p>{ABOUT.more}</p>
