@@ -38,7 +38,7 @@ src/data/frames.js             frame path generator
 - **Text, tabs, cards:** `src/data/content.js`.
 - **Section colors:** the `.pf-stage .pf-*` rules in `src/components/landing.css`.
 - **Intro band color:** `.pf-band` in `landing.css`.
-- **Scroll timing / blur:** the `measure()` function in `src/components/Landing.jsx`; total intro scroll is `.pf-wrap { height: calc(100svh + 6300px) }`.
+- **Scroll timing / blur:** the `measure()` function in `src/components/Landing.jsx`; total intro scroll is `.pf-wrap { height: calc(100svh + 3800px) }`. Section hold length is `SECTION_STEP_VH` in the same file.
 
 ## Publish to GitHub Pages
 

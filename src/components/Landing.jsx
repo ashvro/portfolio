@@ -6,8 +6,8 @@ import "./landing.css";
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
 const EASE_TAU = 80;       // higher = smoother/slower glide
-const TURN_LEAD_VH = 1;    // one scroll of pause after the last frame before About enters
-const SECTION_STEP_VH = 2; // scroll distance between section handoffs
+const TURN_LEAD_VH = 0.5;   // half a scroll of pause after the last frame before About enters
+const SECTION_STEP_VH = 2.5; // scroll distance between section handoffs (desktop)
 
 
 export default function Landing() {
@@ -76,12 +76,17 @@ export default function Landing() {
     const size = () => {
       const W = pin.clientWidth, H = pin.clientHeight;
       const heights = sections.map((el) => el?.offsetHeight || H);
-      const step = H * SECTION_STEP_VH;
-      stages.forEach((stage, i) => {
-        stage.style.marginTop = `${i === 0 ? -H : -heights[i - 1]}px`;
-        stage.style.height = `${step + heights[i]}px`;
-      });
       const tall = H > W * 0.95;
+      const step = tall ? 0 : H * SECTION_STEP_VH;
+      stages.forEach((stage, i) => {
+        if (tall) {
+          stage.style.marginTop = "0px";
+          stage.style.height = `${heights[i]}px`;
+        } else {
+          stage.style.marginTop = `${i === 0 ? -H : -heights[i - 1]}px`;
+          stage.style.height = `${step + heights[i]}px`;
+        }
+      });
       root.style.setProperty("--w", `${W}px`);
       root.style.setProperty("--h", `${H}px`);
       root.dataset.tall = tall ? "1" : "0";
@@ -209,6 +214,7 @@ export default function Landing() {
       const y = Math.max(0, window.scrollY - m.wrapTop);
       const p = clamp01(y / m.range);
       root.style.setProperty("--p", p.toFixed(3));
+      root.dataset.intro = p < 0.985 ? "1" : "0";
 
       const hb = clamp01((y - (m.tops[0] - m.vh)) / Math.max(1, m.vh)) * 14;
       if (Math.abs(hb - heroBlur) >= 0.02) { heroBlur = hb; root.style.setProperty("--hero-blur", `${hb.toFixed(2)}px`); }
@@ -219,7 +225,7 @@ export default function Landing() {
         blur[i] = v;
         el?.style.setProperty("--section-blur", `${v.toFixed(2)}px`);
       });
-      const turnEnd = Math.max(1, m.tops[0] - m.vh * (TURN_LEAD_VH + 1));
+      const turnEnd = Math.max(1, m.tops[0] - m.vh * TURN_LEAD_VH);
       targetPos = Math.min(last, (y / turnEnd) * last);
       startTick();
 
@@ -332,6 +338,12 @@ export default function Landing() {
           <div className="pf-text">
             <p className="pf-hello">Hey, I'm</p>
             <h1>{ME.name.split(" ").map((w) => (<span key={w}>{w}</span>))}</h1>
+          </div>
+
+          <div className="pf-progress">
+            <span className="pf-progress-label" aria-hidden="true">Scroll to meet me</span>
+            <span className="pf-progress-track" aria-hidden="true"><span className="pf-progress-fill" /></span>
+            <button type="button" className="pf-skip" onClick={() => goTo("about")}>Skip intro</button>
           </div>
         </section>
       </div>
