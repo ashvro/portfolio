@@ -14,7 +14,7 @@ export const ABOUT = {
     { text: ", a final-year Computer Science and Engineering student from " },
     { text: "Bengaluru, India", highlight: true },
     { text: " and I live by one idea, " },
-    { text: '"To make things easier for everyone."', highlight: true },
+    { text: '"To make things easier for everyone."', highlight: true, breakBefore: true },
   ],
   more: "I build web apps from the first sketch to the shipped product, and I care about the small details that make something feel effortless to use.",
   facts: [["Based in", "Your City"], ["Focus", "Web apps"], ["Status", "Open to work"]],
