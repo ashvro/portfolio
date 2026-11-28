@@ -80,8 +80,13 @@ export default function Landing() {
       const tall = H > W * 0.95;
       const step = H * SECTION_STEP_VH;
       stages.forEach((stage, i) => {
-        stage.style.marginTop = `${i === 0 ? -H : -heights[i - 1]}px`;
-        stage.style.height = `${step + heights[i]}px`;
+        if (tall) {
+          stage.style.marginTop = "0px";
+          stage.style.height = `${heights[i]}px`;
+        } else {
+          stage.style.marginTop = `${i === 0 ? -H : -heights[i - 1]}px`;
+          stage.style.height = `${step + heights[i]}px`;
+        }
       });
       root.style.setProperty("--w", `${W}px`);
       root.style.setProperty("--h", `${H}px`);
@@ -364,9 +369,6 @@ export default function Landing() {
             </div>
             <div className="pf-about-body">
               {ABOUT.more.map((paragraph, i) => <p key={i}>{paragraph}</p>)}
-              <ul className="pf-facts">
-                {ABOUT.facts.map(([label, value]) => (<li key={label}><strong>{label}</strong><span>{value}</span></li>))}
-              </ul>
             </div>
           </div>
         </section>
