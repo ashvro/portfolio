@@ -155,7 +155,7 @@
 .pf-section { position: relative; z-index: 2; background: var(--bg); color: var(--ink); min-height: 100vh;
   display: flex; align-items: center; scroll-margin-top: clamp(72px, 10vh, 100px);
   padding: clamp(88px, 12vh, 140px) clamp(20px, 6vw, 84px) clamp(72px, 10vh, 120px); }
-.pf-stage .pf-section { align-items: flex-start; padding-top: clamp(104px, 14vh, 144px);
+.pf-stage .pf-section { align-items: flex-start; padding-top: clamp(88px, 11vh, 120px);
   --ink: #f6f2ff; --soft: #e8e1ff; --pop: #ffffff; --glow: #ffffff; --edge: rgba(255,255,255,.3);
   color: var(--ink); filter: blur(var(--section-blur, 0px));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 -24px 50px -40px rgba(255,255,255,.6); }
@@ -214,7 +214,7 @@
   text-decoration: none; color: var(--ink); border: 1px solid var(--edge); border-radius: 999px; padding: 11px 16px; }
 
 .pf[data-tall="1"] .pf-card-grid, .pf[data-tall="1"] .pf-skill-grid { grid-template-columns: 1fr; }
-.pf[data-tall="1"] .pf-stage .pf-section { position: relative; filter: none; padding-top: 124px; }
+.pf[data-tall="1"] .pf-stage .pf-section { position: relative; filter: none; padding-top: 96px; }
 .pf[data-tall="1"] .pf-top { top: 12px; left: 12px; right: auto; padding: 7px 10px; max-width: calc(100% - 24px);
   display: flex; align-items: center; gap: 10px; }
 .pf[data-tall="1"] .pf-links { gap: 8px 12px; flex-wrap: wrap; justify-content: center; }
