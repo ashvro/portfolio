@@ -360,7 +360,7 @@ export default function Landing() {
               ? <span key={i}><br /><mark className="pf-hl">{part.text}</mark></span>
               : part.highlight
                 ? <mark key={i} className="pf-hl">{part.text}</mark>
-                : <span key={i}>{part.text}</span>)}</h2>
+                : <span key={i} className={part.noWrap ? "pf-nowrap" : undefined}>{part.text}</span>)}</h2>
             </div>
             <div className="pf-about-body">
               <p>{ABOUT.more}</p>
