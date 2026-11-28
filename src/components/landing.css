@@ -27,8 +27,8 @@
 .pf[data-tall="0"] .pf-hero::before { content: none; }
 @media (prefers-reduced-motion: reduce) { .pf-band, .pf-band::before, .pf-band::after, .pf-hero::before { animation: none !important; } }
 
-.pf-portrait { position: absolute; top: 50%; right: 1%; bottom: auto; width: 62%; height: 100%; transform: translateY(-50%); overflow: hidden; background: #30c5d2; }
-.pf[data-tall="0"] .pf-portrait { background: linear-gradient(to right, transparent 0%, transparent 18%, #30c5d2 18%, #30c5d2 100%); }
+.pf-portrait { position: absolute; top: 50%; right: -1%; bottom: auto; width: 62%; height: 100%; transform: translateY(-50%); overflow: hidden; background: #30c5d2; }
+.pf[data-tall="0"] .pf-portrait { background: linear-gradient(to right, transparent 0%, transparent 14.5%, #30c5d2 14.5%, #30c5d2 100%); }
 .pf-portrait-in { position: absolute; z-index: 1; inset: 0; transform-origin: 60% 100%; will-change: transform; }
 .pf-frame-back { position: absolute; inset: 0; pointer-events: none; background: var(--bg);
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
