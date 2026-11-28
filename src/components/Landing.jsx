@@ -107,6 +107,8 @@ export default function Landing() {
     const backs = mode === "images" ? Array.from(portraitRef.current.querySelectorAll(".pf-frame-back")) : [];
     const canvas = useCanvas ? canvasRef.current : null;
     const bitmaps = useCanvas ? bitmapsRef.current : [];
+    const matte = useCanvas ? document.createElement("canvas") : null;
+    const matteCtx = matte ? matte.getContext("2d") : null;
     const inner = portraitRef.current.querySelector(".pf-portrait-in");
     const stages = Array.from(root.querySelectorAll(".pf-stage"));
     const sections = stages.map((stage) => stage.querySelector(".pf-section"));
@@ -165,19 +167,39 @@ export default function Landing() {
         if (b < 0) b = a;
         if (a > b) [a, b] = [b, a];
         const t = a === b ? 0 : clamp01((raw - a) / Math.max(1, b - a));
+
+        // Harden the frame's soft alpha into a dark silhouette. Without this,
+        // bright semi-transparent edge pixels composite straight onto the cyan
+        // band and read as a blue fringe on the shoulder.
+        if (matte.width !== cw || matte.height !== ch) { matte.width = cw; matte.height = ch; }
+        matteCtx.globalCompositeOperation = "source-over";
+        matteCtx.globalAlpha = 1;
+        matteCtx.clearRect(0, 0, cw, ch);
+        const placeA = place(bitmaps[a]);
+        for (let k = 0; k < 4; k++) matteCtx.drawImage(bitmaps[a], ...placeA, 0, 0, cw, ch);
+        if (t > 0.001 && b !== a) {
+          matteCtx.globalAlpha = t;
+          matteCtx.drawImage(bitmaps[b], ...place(bitmaps[b]), 0, 0, cw, ch);
+          matteCtx.globalAlpha = 1;
+        }
+        matteCtx.globalCompositeOperation = "source-in";
+        matteCtx.fillStyle = "#300854";
+        matteCtx.fillRect(0, 0, cw, ch);
+        matteCtx.globalCompositeOperation = "source-over";
+
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.globalCompositeOperation = "source-over";
-        ctx.globalAlpha = 1 - t;
+        ctx.globalAlpha = 1;
         ctx.clearRect(0, 0, cw, ch);
-        ctx.drawImage(bitmaps[a], ...place(bitmaps[a]), 0, 0, cw, ch);
+        ctx.drawImage(matte, 0, 0);
+        ctx.globalAlpha = 1 - t;
+        ctx.drawImage(bitmaps[a], ...placeA, 0, 0, cw, ch);
         if (t > 0.001 && b !== a) {
-          ctx.globalCompositeOperation = "lighter";
           ctx.globalAlpha = t;
           ctx.drawImage(bitmaps[b], ...place(bitmaps[b]), 0, 0, cw, ch);
         }
         ctx.globalAlpha = 1;
-        ctx.globalCompositeOperation = "source-over";
         return;
       }
       for (let i = 0; i < imgs.length; i++) {
