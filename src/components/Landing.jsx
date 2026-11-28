@@ -73,6 +73,7 @@ export default function Landing() {
     const root = rootRef.current, pin = pinRef.current;
     const stages = Array.from(root.querySelectorAll(".pf-stage"));
     const sections = stages.map((stage) => stage.querySelector(".pf-section"));
+    const topbar = root.querySelector(".pf-top");
     const size = () => {
       const W = pin.clientWidth, H = pin.clientHeight;
       const heights = sections.map((el) => el?.offsetHeight || H);
@@ -89,13 +90,20 @@ export default function Landing() {
       });
       root.style.setProperty("--w", `${W}px`);
       root.style.setProperty("--h", `${H}px`);
+      if (topbar) {
+        const bandLeft = Math.max(0, topbar.getBoundingClientRect().right - root.getBoundingClientRect().left);
+        const portraitLeft = W * 0.39;
+        const matteStart = Math.max(0, Math.min(100, ((bandLeft - portraitLeft) / (W * 0.62)) * 100));
+        root.style.setProperty("--band-left", `${bandLeft.toFixed(1)}px`);
+        root.style.setProperty("--matte-start", `${matteStart.toFixed(2)}%`);
+      }
       root.dataset.tall = tall ? "1" : "0";
       root.dataset.compact = tall && H < 700 ? "1" : "0";
       root.dataset.short = !tall && H < 520 ? "1" : "0";
     };
     size();
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(size) : null;
-    if (ro) { ro.observe(pin); sections.forEach((el) => { if (el) ro.observe(el); }); }
+    if (ro) { ro.observe(pin); if (topbar) ro.observe(topbar); sections.forEach((el) => { if (el) ro.observe(el); }); }
     window.addEventListener("resize", size);
     return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", size); };
   }, []);
