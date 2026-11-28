@@ -203,7 +203,8 @@ export default function Landing() {
         rafId = 0;
         return;
       }
-      currentPos += diff * (1 - Math.exp(-dt / EASE_TAU));
+      const tau = root.dataset.tall === "1" ? 55 : EASE_TAU;
+      currentPos += diff * (1 - Math.exp(-dt / tau));
       paint(currentPos);
       rafId = requestAnimationFrame(tick);
     };
