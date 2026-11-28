@@ -8,7 +8,7 @@ export const ME = {
 
 // The About glass card
 export const ABOUT = {
-  lead: "I'm Ashutosh, a developer who likes to make things easier for everyone.",
+  lead: "Hi, I'm Ashutosh, a final-year Computer Science and Engineering student from Bengaluru, India. I live by one idea, \"To make things easier for everyone.\"",
   more: "I build web apps from the first sketch to the shipped product, and I care about the small details that make something feel effortless to use.",
   facts: [["Based in", "Your City"], ["Focus", "Web apps"], ["Status", "Open to work"]],
 };
