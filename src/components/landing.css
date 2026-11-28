@@ -19,15 +19,16 @@
 .pf-stage .pf-section { position: sticky; top: 0; }
 .pf-hero { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; min-height: 360px;
   background: var(--bg); filter: blur(var(--hero-blur, 0px)); }
-.pf-band { position: absolute; z-index: -1; top: 0; bottom: -10%; left: var(--band-left, 48%); right: -1%; pointer-events: none;
-  background: linear-gradient(115deg, #30c5d2 0%, #2ab0c2 45%, #2f7fa6 75%, #5d4ea8 100%); opacity: 1; }
+.pf-band { position: absolute; z-index: -1; top: 0; bottom: -10%; left: var(--band-left, 48%); right: 6%; pointer-events: none;
+  background: #30c5d2; opacity: 1; }
 
 .pf[data-tall="1"] .pf-band { top: calc(var(--ptop) + var(--ph) * .04); bottom: auto; left: 0; right: 0;
-  height: calc(var(--ph) * .96); }
+  height: calc(var(--ph) * .96); background: #30c5d2; }
 .pf[data-tall="0"] .pf-hero::before { content: none; }
 @media (prefers-reduced-motion: reduce) { .pf-band, .pf-band::before, .pf-band::after, .pf-hero::before { animation: none !important; } }
 
-.pf-portrait { position: absolute; top: 50%; right: -1%; bottom: auto; width: 62%; height: 100%; transform: translateY(-50%); overflow: hidden; }
+.pf-portrait { position: absolute; top: 50%; right: -1%; bottom: auto; width: 62%; height: 100%; transform: translateY(-50%); overflow: hidden; background: #30c5d2; }
+.pf[data-tall="0"] .pf-portrait { background: linear-gradient(to right, transparent 0%, transparent var(--matte-start, 14.5%), #30c5d2 var(--matte-start, 14.5%), #30c5d2 100%); }
 .pf-portrait-in { position: absolute; z-index: 1; inset: 0; transform-origin: 60% 100%; will-change: transform; }
 .pf-frame-back { position: absolute; inset: 0; pointer-events: none; background: var(--bg);
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;

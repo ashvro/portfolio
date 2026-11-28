@@ -87,7 +87,10 @@ export default function Landing() {
       root.style.setProperty("--h", `${H}px`);
       if (topbar) {
         const bandLeft = Math.max(0, topbar.getBoundingClientRect().right - root.getBoundingClientRect().left);
+        const portraitLeft = W * 0.39;
+        const matteStart = Math.max(0, Math.min(100, ((bandLeft - portraitLeft) / (W * 0.62)) * 100));
         root.style.setProperty("--band-left", `${bandLeft.toFixed(1)}px`);
+        root.style.setProperty("--matte-start", `${matteStart.toFixed(2)}%`);
       }
       root.dataset.tall = tall ? "1" : "0";
       root.dataset.compact = tall && H < 700 ? "1" : "0";
