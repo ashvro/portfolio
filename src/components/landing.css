@@ -169,7 +169,7 @@
   text-decoration: none; color: var(--ink); border: 1px solid var(--edge); border-radius: 999px; padding: 11px 16px; }
 
 .pf[data-tall="1"] .pf-card-grid, .pf[data-tall="1"] .pf-skill-grid { grid-template-columns: 1fr; }
-.pf[data-tall="1"] .pf-stage .pf-section { position: relative; filter: none; padding-top: 96px; }
+.pf[data-tall="1"] .pf-stage .pf-section { padding-top: 96px; }
 .pf[data-tall="1"] .pf-top { top: 12px; left: 12px; right: auto; padding: 7px 10px; max-width: calc(100% - 24px);
   display: flex; align-items: center; gap: 10px; }
 .pf[data-tall="1"] .pf-links { gap: 8px 12px; flex-wrap: wrap; justify-content: center; }

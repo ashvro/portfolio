@@ -78,15 +78,10 @@ export default function Landing() {
       const W = pin.clientWidth, H = pin.clientHeight;
       const heights = sections.map((el) => el?.offsetHeight || H);
       const tall = H > W * 0.95;
-      const step = tall ? 0 : H * SECTION_STEP_VH;
+      const step = H * SECTION_STEP_VH;
       stages.forEach((stage, i) => {
-        if (tall) {
-          stage.style.marginTop = "0px";
-          stage.style.height = `${heights[i]}px`;
-        } else {
-          stage.style.marginTop = `${i === 0 ? -H : -heights[i - 1]}px`;
-          stage.style.height = `${step + heights[i]}px`;
-        }
+        stage.style.marginTop = `${i === 0 ? -H : -heights[i - 1]}px`;
+        stage.style.height = `${step + heights[i]}px`;
       });
       root.style.setProperty("--w", `${W}px`);
       root.style.setProperty("--h", `${H}px`);
