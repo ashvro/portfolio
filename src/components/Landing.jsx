@@ -81,8 +81,10 @@ export default function Landing() {
       const step = H * SECTION_STEP_VH;
       stages.forEach((stage, i) => {
         if (tall) {
+          const hold = H; // one viewport of pinned pause after the whole section is visible
           stage.style.marginTop = "0px";
-          stage.style.height = `${heights[i]}px`;
+          stage.style.height = `${heights[i] + hold}px`;
+          sections[i]?.style.setProperty("--sh", `${heights[i]}px`);
         } else {
           stage.style.marginTop = `${i === 0 ? -H : -heights[i - 1]}px`;
           stage.style.height = `${step + heights[i]}px`;
