@@ -343,7 +343,6 @@ export default function Landing() {
           <div className="pf-progress">
             <span className="pf-progress-label" aria-hidden="true">Scroll to meet me</span>
             <span className="pf-progress-track" aria-hidden="true"><span className="pf-progress-fill" /></span>
-            <button type="button" className="pf-skip" onClick={() => goTo("about")}>Skip intro</button>
           </div>
         </section>
       </div>
