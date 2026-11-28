@@ -173,8 +173,7 @@
 .pf[data-tall="1"] .pf-card-grid, .pf[data-tall="1"] .pf-skill-grid { grid-template-columns: 1fr; }
 .pf[data-tall="1"] .pf-stage .pf-section { filter: none; padding-top: 96px; }
 .pf[data-tall="1"] .pf-top { top: 12px; left: 12px; right: auto; padding: 7px 10px; max-width: calc(100% - 24px);
-  display: flex; align-items: center; gap: 10px;
-  background: rgba(48, 8, 84, .92); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  display: flex; align-items: center; gap: 10px; }
 .pf[data-tall="1"] .pf-links { gap: 8px 12px; flex-wrap: wrap; justify-content: center; }
 .pf[data-tall="1"] .pf-links a { font-size: 10.5px; letter-spacing: .03em; }
 .pf[data-tall="1"] .pf-top .pf-link-extra { display: none; }
