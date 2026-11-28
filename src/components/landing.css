@@ -35,25 +35,13 @@
   -webkit-mask-position: 50% 0%; mask-position: 50% 0%;
   transform: translateY(4%); }
 .pf-portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; opacity: 0;
-  -webkit-mask-image:
-    linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%),
-    radial-gradient(ellipse 80% 90% at 30% 50%, #000 40%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%),
-    radial-gradient(ellipse 80% 90% at 30% 50%, #000 40%, transparent 100%);
-  mask-composite: intersect; }
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%); }
 .pf-portrait img { transform: translateY(4%); }
 .pf-poster { opacity: 1; }
 .pf-canvas { position: absolute; inset: 0; width: 100%; height: 100%; transform: translateY(4%); pointer-events: none;
-  -webkit-mask-image:
-    linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%),
-    radial-gradient(ellipse 80% 90% at 30% 50%, #000 40%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%),
-    radial-gradient(ellipse 80% 90% at 30% 50%, #000 40%, transparent 100%);
-  mask-composite: intersect; }
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 92%, transparent 100%); }
 .pf-portrait.is-images .pf-canvas { display: none; }
 .pf-portrait::after { content: none; }
 
